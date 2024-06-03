@@ -1,7 +1,9 @@
 # Ansible
 
 ## Installation Guide (Mac)
-- brew install ansible
+```bash
+brew install ansible
+```
 
 ---
 ## How To Use
@@ -24,4 +26,4 @@
 ### Playbook
 - Ansible은 기본적으로 playbook.yml 파일에서 작업을 정의
 - 추후 EKS provisioning 이후 필요한 resource configuration 작업들 추가 예정
-- Ansible을 통해 Bastion Host에 접속 후 yml 실행으로 자동화 하는 것이 목표
+- **Ansible을 통해 Bastion Host에 접속 후 yml 실행으로 자동화 하는 것이 목표**
