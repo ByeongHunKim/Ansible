@@ -1,6 +1,6 @@
 # Ansible
 
-## Installation Guide (Mac)
+## Installation Guide (MacOS)
 ```bash
 brew install ansible
 ```
