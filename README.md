@@ -19,6 +19,20 @@ brew install ansible
     - SSH file directory
 
 ---
+## Check Connection
+```bash
+ansible bastion-1 -m ping -i inventory.ini 
+
+# output
+
+# bastion-1 | SUCCESS => {
+#     "changed": false,
+#     "ping": "pong"
+# }
+
+```
+
+---
 ## Key Concepts
 
 ### Inventory
