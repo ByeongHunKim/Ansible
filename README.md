@@ -8,6 +8,9 @@ brew install ansible
 ---
 ## How To Use
 - `host_vars/bastion-1.yml` 수정
+  ```bash
+  cp host_vars/bastion-1.yml.template host_vars/bastion-1.yml
+  ```
   - ansible_host
     - Bastion Host EC2 instance IP
   - ansible_user
