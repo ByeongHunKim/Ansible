@@ -40,13 +40,9 @@
 
     - name: Add EKS Helm repository
       shell: helm repo add eks https://aws.github.io/eks-charts
-      args:
-        executable: /bin/bash
 
     - name: Update Helm repositories
       shell: helm repo update
-      args:
-        executable: /bin/bash
 
     - name: Install AWS Load Balancer Controller using Helm
       shell: |
@@ -55,35 +51,21 @@
           --set clusterName={{ cluster_name }} \
           --set serviceAccount.create=false \
           --set serviceAccount.name=aws-load-balancer-controller
-      args:
-        executable: /bin/bash
 
     - name: Add Istio Helm repository
       shell: helm repo add istio https://istio-release.storage.googleapis.com/charts
-      args:
-        executable: /bin/bash
 
     - name: Update Istio Helm repositories
       shell: helm repo update
-      args:
-        executable: /bin/bash
 
     - name: List Helm repositories
       shell: helm repo list
-      args:
-        executable: /bin/bash
 
     - name: Create Istio namespace
       shell: kubectl create namespace istio-system
-      args:
-        executable: /bin/bash
 
     - name: Install Istio Base using Helm
       shell: helm install istio-base istio/base -n istio-system
-      args:
-        executable: /bin/bash
 
     - name: Install Istiod using Helm
       shell: helm install istiod istio/istiod -n istio-system
-      args:
-        executable: /bin/bash
