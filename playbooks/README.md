@@ -15,5 +15,13 @@ ansible bastion-1 -m ping -i inventory.ini
 
 ```bash
 # 루드 디렉토리에서 명령어 수행
+
+# aws-cli, aws configure, kubectl 클러스터 연결
 ansible-playbook playbooks/eks-initial-configuration.yml -i inventory.ini
+
+# helm, eksctl 설치
+ansible-playbook playbooks/helm-eksctl-setup.yml -i inventory.ini
+
+# load balancer controller 생성 및 istio 설정
+ansible-playbook playbooks/alb-controller-and-istio.yml -i inventory.ini
 ```
