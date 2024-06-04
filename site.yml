@@ -1,0 +1,9 @@
+---
+# aws-cli, aws configure, kubectl 클러스터 연결
+- import_playbook: playbooks/eks-initial-configuration.yml
+
+# helm, eksctl 설치
+- import_playbook: playbooks/helm-eksctl-setup.yml
+
+# load balancer controller 생성 및 istio 설정
+- import_playbook: playbooks/alb-controller-and-istio.yml
