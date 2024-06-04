@@ -1,0 +1,81 @@
+- name: Configure Bastion Host for EKS
+  hosts: bastion_host
+  vars_files:
+    - ../vars.yml  # 프로젝트 루트 디렉토리에서 vars.yml 파일을 참조
+  tasks:
+    - name: Update all packages
+      become: yes
+      yum:
+        name: '*'
+        state: latest
+
+    - name: Install AWS CLI
+      become: yes
+      yum:
+        name: aws-cli
+        state: present
+
+    - name: Configure AWS CLI
+      become: no
+      shell: >
+        aws configure set aws_access_key_id {{ aws_access_key }} &&
+        aws configure set aws_secret_access_key {{ aws_secret_key }} &&
+        aws configure set region {{ region }}
+      args:
+        executable: /bin/bash
+
+    - name: Download kubectl
+      become: no
+      get_url:
+        url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl"
+        dest: /home/{{ ansible_user }}/kubectl
+        mode: '0755'
+
+    - name: Add kubectl to PATH
+      become: no
+      lineinfile:
+        path: /home/{{ ansible_user }}/.bashrc
+        line: 'export PATH=$PATH:/home/{{ ansible_user }}'
+        create: yes
+
+    - name: Apply new PATH environment
+      become: no
+      shell: source /home/{{ ansible_user }}/.bashrc
+      args:
+        executable: /bin/bash
+
+    - name: Verify kubectl installation
+      become: no
+      shell: /home/{{ ansible_user }}/kubectl version --client
+      register: kubectl_output
+
+    - name: Print kubectl version
+      become: no
+      debug:
+        msg: "{{ kubectl_output.stdout }}"
+
+    - name: Update kubeconfig for EKS cluster
+      become: no
+      shell: aws eks --region {{ region }} update-kubeconfig --name {{ cluster_name }}
+      args:
+        executable: /bin/bash
+
+    - name: Verify kubectl current context
+      become: no
+      shell: kubectl config current-context
+      register: current_context
+
+    - name: Print current kubectl context
+      become: no
+      debug:
+        msg: "{{ current_context.stdout }}"
+
+    - name: Verify kubectl get nodes
+      become: no
+      shell: kubectl get nodes
+      register: nodes
+
+    - name: Print kubectl nodes
+      become: no
+      debug:
+        msg: "{{ nodes.stdout }}"
