@@ -17,6 +17,20 @@ brew install ansible
     - ec2-user
   - ansible_ssh_private_key_file
     - SSH file directory
+- `vars.yml` 수정
+  ```bash
+  cp vars.yml.template vars.yml
+  ```
+  - aws_access_key
+    - your_aws_access_key
+  - aws_secret_key
+    - your_aws_secret_key
+  - region
+    - aws region
+  - cluster_name
+    - eks cluster name
+  - kubectl_version
+    - default ( v1.29.1 )
 
 ---
 ## Check Connection
