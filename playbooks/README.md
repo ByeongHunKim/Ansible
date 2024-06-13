@@ -30,6 +30,9 @@ ansible-playbook playbooks/helm-eksctl-setup.yml -i inventory.ini
 
 # load balancer controller 생성 및 istio 설정
 ansible-playbook playbooks/alb-controller-and-istio.yml -i inventory.ini
+
+# istio-ingressgateway 및 istio-ingress 설정 -> route53에서 a레코드 ingress로 생성된 로드밸런서로 변경 필요함
+ansible-playbook playbooks/install-istio-ingressgateway-and-configure-ingress.yml -i inventory.ini -v
 ```
 
 ## 4. master playbook 실행 (site.yml)

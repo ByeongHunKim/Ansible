@@ -7,3 +7,6 @@
 
 # load balancer controller 생성 및 istio 설정
 - import_playbook: playbooks/alb-controller-and-istio.yml
+
+# istio-ingressgateway 및 istio-ingress 설정
+- import_playbook: playbooks/install-istio-ingressgateway-and-configure-ingress.yml

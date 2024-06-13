@@ -1,0 +1,27 @@
+---
+- name: Install Istio Ingress Gateway and Configure Ingress
+  hosts: bastion_host
+  become: no
+  vars_files:
+    - ../vars.yml  # 프로젝트 루트 디렉토리에서 vars.yml 파일을 참조
+  tasks:
+    - name: Install Istio Ingress Gateway
+      shell: helm install istio-ingressgateway istio/gateway -n istio-system --set service.type=NodePort
+      register: helm_ingress_install_output
+
+    - name: Debug Istio Ingress Gateway install output
+      debug:
+        var: helm_ingress_install_output
+
+    - name: Apply Istio Ingress Configuration
+      template:
+        src: templates/istio-ingress.yaml
+        dest: /tmp/istio-ingress.yaml
+
+    - name: Apply the Ingress configuration
+      shell: kubectl apply -f /tmp/istio-ingress.yaml
+      register: kubectl_apply_output
+
+    - name: Debug ALB Ingress apply output
+      debug:
+        var: kubectl_apply_output
