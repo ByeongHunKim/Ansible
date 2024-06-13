@@ -1,7 +1,7 @@
 - name: Configure Bastion Host for EKS
   hosts: bastion_host
   vars_files:
-    - ../vars.yml  # 프로젝트 루트 디렉토리에서 vars.yml 파일을 참조
+    - ../vars.yml
   tasks:
     - name: Update all packages
       become: yes

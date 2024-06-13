@@ -1,0 +1,99 @@
+---
+- name: Setup EFS and EFS CSI Driver
+  hosts: bastion_host
+  become_user: ec2-user
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - block:
+        - name: Get EFS ID
+          shell: >
+            aws cloudformation describe-stacks --stack-name {{ efs_stack_name }} --query "Stacks[0].Outputs[?OutputKey=='FileSystemId'].OutputValue" --output text --region {{ region }}
+          register: efs_id
+          changed_when: False
+
+        - name: Set EFS ID
+          set_fact:
+            efs_id: "{{ efs_id.stdout }}"
+#
+        - name: Get AWS Account ID
+          shell: >
+            aws sts get-caller-identity --query "Account" --output text
+          register: account_id
+          changed_when: False
+
+        - name: Set AWS Account ID
+          set_fact:
+            account_id: "{{ account_id.stdout }}"
+
+        - name: Get EKS Cluster Role Name
+          shell: >
+            aws eks describe-cluster --name {{ cluster_name }} --query "cluster.roleArn" --output text | awk -F'/' '{print $NF}'
+          register: role_name
+          changed_when: False
+
+        - name: Set EKS Cluster Role Name
+          set_fact:
+            role_name: "{{ role_name.stdout }}"
+
+    - block:
+        - name: Attach EFS CSI Driver Policy to the EKS Role
+          shell: >
+            aws iam attach-role-policy --role-name {{ role_name }} --policy-arn arn:aws:iam::{{ account_id }}:policy/AmazonEKS_EFS_CSI_Driver_Policy
+          changed_when: False
+
+        - name: Create IAM Service Account for EFS CSI Driver
+          shell: >
+            eksctl create iamserviceaccount --name efs-csi-controller-sa --namespace kube-system --cluster {{ cluster_name }} --attach-policy-arn arn:aws:iam::{{ account_id }}:policy/AmazonEKS_EFS_CSI_Driver_Policy --approve --override-existing-serviceaccounts
+          changed_when: False
+
+        - name: Add Helm Repository for EFS CSI Driver
+          shell: >
+            helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver
+          changed_when: False
+
+        - name: Update Helm Repositories
+          shell: >
+            helm repo update
+          changed_when: False
+
+        - name: Install EFS CSI Driver
+          shell: >
+            helm upgrade --install aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver --namespace kube-system --set controller.serviceAccount.create=false --set controller.serviceAccount.name=efs-csi-controller-sa
+          changed_when: False
+
+        - name: Create StorageClass for EFS
+          template:
+            src: templates/efs/efs-storageclass.yaml
+            dest: /tmp/efs-storageclass.yaml
+
+        - name: Apply StorageClass for EFS
+          shell: kubectl apply -f /tmp/efs-storageclass.yaml
+          changed_when: False
+
+#    - block:
+#        - name: Get Cluster Security Group ID
+#          shell: >
+#            aws eks describe-cluster --name {{ cluster_name }} --query "cluster.resourcesVpcConfig.clusterSecurityGroupId" --output text
+#          register: cluster_security_group_id
+#          changed_when: False
+#
+#        - name: Set Cluster Security Group ID
+#          set_fact:
+#            cluster_security_group_id: "{{ cluster_security_group_id.stdout }}"
+#
+#        - name: Get EFS Mount Target Security Group ID
+#          shell: >
+#            aws efs describe-mount-targets --file-system-id {{ efs_id }} --query 'MountTargets[0].MountTargetId' --output text | xargs -I {} aws efs describe-mount-target-security-groups --mount-target-id {} --query 'SecurityGroups[0]' --output text
+#          register: efs_security_group_id
+#          changed_when: False
+#
+#        - name: Set EFS Security Group ID
+#          set_fact:
+#            efs_security_group_id: "{{ efs_security_group_id.stdout }}"
+#
+#        - name: Authorize security group ingress
+#          shell: >
+#            aws ec2 authorize-security-group-ingress --group-id {{ efs_security_group_id }} --protocol tcp --port 2049 --source-group {{ cluster_security_group_id }}
+#          changed_when: False

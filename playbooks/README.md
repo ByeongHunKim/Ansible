@@ -17,22 +17,31 @@ cp vars.yml.template vars.yml
 ansible bastion-1 -m ping -i inventory.ini
 ```
 
-## (deprecated) 3. 직접 하나 하나 playbook 실행 
+## (Optional) 3. 직접 하나 하나 playbook 실행 
 
 ```bash
 # 루드 디렉토리에서 명령어 수행
 
-# aws-cli, aws configure, kubectl 클러스터 연결
-ansible-playbook playbooks/eks-initial-configuration.yml -i inventory.ini
+# 1. aws-cli, aws configure, kubectl 클러스터 연결
+ansible-playbook playbooks/aws-cli-and-cluster-context-setup.yml -i inventory.ini
 
-# helm, eksctl 설치
+# 2. helm, eksctl 설치
 ansible-playbook playbooks/helm-eksctl-setup.yml -i inventory.ini
 
-# load balancer controller 생성 및 istio 설정
-ansible-playbook playbooks/alb-controller-and-istio.yml -i inventory.ini
+# 3. load balancer controller 생성 및 istio 설정
+ansible-playbook playbooks/alb-controller-and-istio-setup.yml -i inventory.ini
 
-# istio-ingressgateway 및 istio-ingress 설정 -> route53에서 a레코드 ingress로 생성된 로드밸런서로 변경 필요함
-ansible-playbook playbooks/install-istio-ingressgateway-and-configure-ingress.yml -i inventory.ini -v
+# 4. istio-ingressgateway 및 istio-ingress 설정 -> route53에서 a레코드 ingress로 생성된 로드밸런서로 변경 필요함
+ansible-playbook playbooks/istio-ingressgateway-and-ingress-setup.yml -i inventory.ini -v
+
+# 5. efs 설정
+ansible-playbook playbooks/efs-setup.yml -i inventory.ini -v
+
+# 6. loki 설정
+ansible-playbook playbooks/loki-setup.yml -i inventory.ini -v
+
+# 7. prometheus 설정
+ansible-playbook playbooks/prometheus-setup.yml -i inventory.ini -v
 ```
 
 ## 4. master playbook 실행 (site.yml)

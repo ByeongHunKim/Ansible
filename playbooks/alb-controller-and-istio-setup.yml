@@ -3,7 +3,7 @@
   hosts: bastion_host
   become: no
   vars_files:
-    - ../vars.yml  # 프로젝트 루트 디렉토리에서 vars.yml 파일을 참조
+    - ../vars.yml
   tasks:
     - name: Download IAM policy for AWS Load Balancer Controller
       become: yes
@@ -77,7 +77,7 @@
       shell: kubectl create namespace istio-system
 
     - name: Install Istio Base using Helm
-      shell: helm install istio-base istio/base -n istio-system
+      shell: helm install istio-base istio/base -n istio-system --wait
 
     - name: Install Istiod using Helm
-      shell: helm install istiod istio/istiod -n istio-system
+      shell: helm install istiod istio/istiod -n istio-system --wait
