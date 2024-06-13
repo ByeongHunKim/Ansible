@@ -20,7 +20,17 @@ brew install ansible
 ```
 
 ---
-## 2. Prerequisites After Install
+
+## 2. Prerequisites Before Install
+- route53
+   - domain
+- acm
+   - acm apply
+- efs
+  - efs stack
+---
+
+## 3. Prerequisites After Install
 - `host_vars/bastion-1.yml` 수정
   ```bash
   cp host_vars/bastion-1.yml.template host_vars/bastion-1.yml
@@ -54,7 +64,7 @@ brew install ansible
   - loki,prometheus_domain
 
 ---
-## 3. Check Connection with Host (bastion-host)
+## 4. Check Connection with Host (bastion-host)
 ```bash
 ansible bastion-1 -m ping -i inventory.ini 
 
@@ -68,7 +78,7 @@ ansible bastion-1 -m ping -i inventory.ini
 ```
 
 ---
-## 4. Run Master Playbook
+## 5. Run Master Playbook
 ```bash
 ansible-playbook site.yml -i inventory.ini
 ```
