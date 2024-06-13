@@ -1,12 +1,21 @@
 ---
 # aws-cli, aws configure, kubectl 클러스터 연결
-- import_playbook: playbooks/eks-initial-configuration.yml
+- import_playbook: playbooks/aws-cli-and-cluster-context-setup.yml
 
-# helm, eksctl 설치
+## helm, eksctl 설치
 - import_playbook: playbooks/helm-eksctl-setup.yml
 
 # load balancer controller 생성 및 istio 설정
-- import_playbook: playbooks/alb-controller-and-istio.yml
+- import_playbook: playbooks/alb-controller-and-istio-setup.yml
 
 # istio-ingressgateway 및 istio-ingress 설정
-- import_playbook: playbooks/install-istio-ingressgateway-and-configure-ingress.yml
+- import_playbook: playbooks/istio-ingressgateway-and-ingress-setup.yml
+
+# efs 설정
+- import_playbook: playbooks/efs-setup.yml
+
+# loki 설정
+- import_playbook: playbooks/loki-setup.yml
+
+# prometheus 설정
+- import_playbook: playbooks/prometheus-setup.yml

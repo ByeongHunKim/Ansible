@@ -1,0 +1,56 @@
+---
+- name: Setup Loki and Grafana
+  hosts: bastion_host
+  become_user: ec2-user
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Create Loki namespace
+      shell: kubectl create namespace loki
+      ignore_errors: yes
+
+    - name: Create PVC for Grafana
+      copy:
+        src: templates/loki/grafana-pvc.yaml
+        dest: /tmp/grafana-pvc.yaml
+
+    - name: Create PVC for Loki
+      copy:
+        src: templates/loki/loki-pvc.yaml
+        dest: /tmp/loki-pvc.yaml
+
+    - name: Apply PVCs
+      shell: kubectl apply -f /tmp/grafana-pvc.yaml -f /tmp/loki-pvc.yaml
+
+    - name: Check PVCs status
+      shell: kubectl get pvc -n loki
+      register: pvc_status
+
+    - name: Debug PVCs status
+      debug:
+        var: pvc_status
+
+    - name: Add Loki Helm repository
+      shell: helm repo add grafana https://grafana.github.io/helm-charts
+      changed_when: False
+
+    - name: Update Helm repositories
+      shell: helm repo update
+      changed_when: False
+
+    - name: Create Loki values file
+      copy:
+        src: templates/loki/loki-values.yaml
+        dest: /tmp/loki-values.yaml
+
+    - name: Install Loki using Helm
+      shell: helm install loki grafana/loki-stack -n loki -f /tmp/loki-values.yaml
+
+    - name: Create Loki Ingress
+      template:
+        src: templates/loki/loki-ingress.yaml
+        dest: /tmp/loki-ingress.yaml
+
+    - name: Apply Loki Ingress
+      shell: kubectl apply -f /tmp/loki-ingress.yaml

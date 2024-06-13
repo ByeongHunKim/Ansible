@@ -45,6 +45,13 @@ brew install ansible
     - eks cluster name
   - kubectl_version
     - default ( v1.29.1 )
+  - policy_name
+    -  default ( AWSLoadBalancerControllerIAMPolicy )
+  - acm_arn
+    - domain acm arn
+    - will be connected to istio ingress alb
+  -  efs_stack_name
+  - loki,prometheus_domain
 
 ---
 ## 3. Check Connection with Host (bastion-host)

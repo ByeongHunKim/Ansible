@@ -1,0 +1,54 @@
+---
+- name: Setup Prometheus and Grafana
+  hosts: bastion_host
+  become_user: ec2-user
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Download Metrics Server components.yaml
+      get_url:
+        url: https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+        dest: /tmp/components.yaml
+
+    - name: Apply Metrics Server
+      shell: kubectl apply -f /tmp/components.yaml
+
+    - name: Add Rancher Monitoring CRD Helm repository
+      shell: helm repo add rancher-monitoring-crd https://charts.rancher.io
+      changed_when: False
+
+    - name: Update Helm repositories
+      shell: helm repo update
+      changed_when: False
+
+    - name: Check if Grafana CRD is installed
+      shell: helm list -n cattle-monitoring-system | grep grafana-crd
+      register: grafana_crd_installed
+      ignore_errors: yes
+
+    - name: Install or Upgrade Grafana CRD
+      shell: >
+        helm {{ 'upgrade --install' if grafana_crd_installed.rc != 0 else 'upgrade' }}
+        grafana-crd rancher-monitoring-crd/rancher-monitoring-crd -n cattle-monitoring-system --create-namespace
+
+    - name: Add Rancher Monitoring Helm repository
+      shell: helm repo add rancher-monitoring https://charts.rancher.io
+      changed_when: False
+
+    - name: Update Helm repositories
+      shell: helm repo update
+      changed_when: False
+
+    - name: Create prometheus values file
+      template:
+        src: templates/prometheus/prometheus-values.yaml
+        dest: /tmp/prometheus-values.yaml
+
+    - name: Check if Grafana is installed
+      shell: helm list -n cattle-monitoring-system | grep grafana
+      register: grafana_installed
+      ignore_errors: yes
+
+    - name: Install Grafana using Helm
+      shell: helm install grafana rancher-monitoring/rancher-monitoring -n cattle-monitoring-system -f /tmp/prometheus-values.yaml

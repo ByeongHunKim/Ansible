@@ -1,0 +1,813 @@
+filebeat:
+  enabled: false
+  filebeatConfig:
+    filebeat.yml: |
+      # logging.level: debug
+      filebeat.inputs:
+      - type: container
+        paths:
+          - /var/log/containers/*.log
+        processors:
+        - add_kubernetes_metadata:
+            host: ${NODE_NAME}
+            matchers:
+            - logs_path:
+                logs_path: "/var/log/containers/"
+      output.logstash:
+        hosts: ["logstash-loki:5044"]
+fluent-bit:
+  enabled: false
+grafana:
+  admin:
+    existingSecret: ""
+    passwordKey: admin-password
+    # 초기 비밀번호 할당
+    password: memecore123
+    userKey: admin-user
+  adminUser: admin
+  affinity: {}
+  alerting: {}
+  autoscaling:
+    enabled: false
+  containerSecurityContext: {}
+  createConfigmap: true
+  dashboardProviders: {}
+  dashboards: {}
+  dashboardsConfigMaps: {}
+  datasources: {}
+  deploymentStrategy:
+    type: RollingUpdate
+  downloadDashboards:
+    env: {}
+    envFromSecret: ""
+    resources: {}
+    securityContext: {}
+  downloadDashboardsImage:
+    pullPolicy: IfNotPresent
+    repository: curlimages/curl
+    sha: ""
+    tag: 7.85.0
+  enableKubeBackwardCompatibility: false
+  enableServiceLinks: true
+  enabled: true
+  env: {}
+  envFromConfigMaps: []
+  envFromSecret: ""
+  envFromSecrets: []
+  envRenderSecret: {}
+  envValueFrom: {}
+  extraConfigmapMounts: []
+  extraContainerVolumes: []
+  extraContainers: ""
+  extraEmptyDirMounts: []
+  extraExposePorts: []
+  extraInitContainers: []
+  extraLabels: {}
+  extraObjects: []
+  extraSecretMounts: []
+  extraVolumeMounts: []
+  global: {}
+  grafana.ini:
+    analytics:
+      check_for_updates: true
+    grafana_net:
+      url: https://grafana.net
+    log:
+      mode: console
+    paths:
+      data: /var/lib/grafana/
+      logs: /var/log/grafana
+      plugins: /var/lib/grafana/plugins
+      provisioning: /etc/grafana/provisioning
+      #auth:
+      #disable_brute_force_login_protection: true
+    server:
+      domain: '{{ if (and .Values.ingress.enabled .Values.ingress.hosts) }}{{ .Values.ingress.hosts
+        | first }}{{ else }}''''{{ end }}'
+  headlessService: false
+  hostAliases: []
+  image:
+    pullPolicy: IfNotPresent
+    repository: grafana/grafana
+    sha: ""
+    tag: 9.1.7
+  imageRenderer:
+    affinity: {}
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+    deploymentStrategy: {}
+    enabled: false
+    env:
+      HTTP_HOST: 0.0.0.0
+    grafanaProtocol: http
+    grafanaSubPath: ""
+    hostAliases: []
+    image:
+      pullPolicy: Always
+      repository: grafana/grafana-image-renderer
+      sha: ""
+      tag: latest
+    networkPolicy:
+      limitEgress: false
+      limitIngress: true
+    # 관리형 서비스 이므로 관리형 노드 그룹에 할당
+    nodeSelector:
+      alpha.eksctl.io/nodegroup-name: manage-group
+    podPortName: http
+    priorityClassName: ""
+    replicas: 1
+    resources: {}
+    revisionHistoryLimit: 10
+    securityContext: {}
+    service:
+      appProtocol: ""
+      enabled: true
+      port: 8081
+      portName: http
+      targetPort: 8081
+    serviceAccountName: ""
+    tolerations: []
+  ingress:
+    annotations: {}
+    enabled: false
+    extraPaths: []
+    hosts:
+      - chart-example.local
+    labels: {}
+    path: /
+    pathType: Prefix
+    tls: []
+  initChownData:
+    enabled: false
+    image:
+      pullPolicy: IfNotPresent
+      repository: busybox
+      sha: ""
+      tag: 1.31.1
+    resources: {}
+    securityContext:
+      runAsNonRoot: false
+      runAsUser: 0
+  ldap:
+    config: ""
+    enabled: false
+    existingSecret: ""
+  lifecycleHooks: {}
+  livenessProbe:
+    failureThreshold: 10
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 60
+    timeoutSeconds: 30
+  namespaceOverride: ""
+  networkPolicy:
+    allowExternal: true
+    egress:
+      enabled: false
+      ports: []
+    enabled: false
+    explicitNamespacesSelector: {}
+    ingress: true
+  # 관리형 서비스 이므로 관리형 노드 그룹에 할당
+  nodeSelector:
+    alpha.eksctl.io/nodegroup-name: manage-group
+  notifiers: {}
+  persistence:
+    accessModes:
+      - ReadWriteOnce
+    enabled: true
+    existingClaim: loki-pvc
+    extraPvcLabels: {}
+    finalizers:
+      - kubernetes.io/pvc-protection
+    inMemory:
+      enabled: false
+    size: 10Gi
+    type: pvc
+  plugins: []
+  podDisruptionBudget: {}
+  podPortName: grafana
+  rbac:
+    create: true
+    extraClusterRoleRules: []
+    extraRoleRules: []
+    namespaced: false
+    pspEnabled: true
+    pspUseAppArmor: true
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+  replicas: 1
+  resources: {}
+  revisionHistoryLimit: 10
+  securityContext:
+    fsGroup: 472
+    runAsGroup: 472
+    runAsUser: 472
+  service:
+    annotations: {}
+    appProtocol: ""
+    enabled: true
+    labels: {}
+    port: 80
+    portName: service
+    targetPort: 3000
+    type: ClusterIP
+  serviceAccount:
+    autoMount: true
+    create: true
+    labels: {}
+  serviceMonitor:
+    enabled: false
+    interval: 1m
+    labels: {}
+    path: /metrics
+    relabelings: []
+    scheme: http
+    scrapeTimeout: 30s
+    tlsConfig: {}
+  sidecar:
+    alerts:
+      enabled: false
+      env: {}
+      label: grafana_alert
+      labelValue: ""
+      reloadURL: http://localhost:3000/api/admin/provisioning/alerting/reload
+      resource: both
+      sizeLimit: {}
+      skipReload: false
+      watchMethod: WATCH
+    dashboards:
+      SCProvider: true
+      enabled: false
+      env: {}
+      extraMounts: []
+      folder: /tmp/dashboards
+      label: grafana_dashboard
+      labelValue: ""
+      provider:
+        allowUiUpdates: false
+        disableDelete: false
+        folder: ""
+        foldersFromFilesStructure: false
+        name: sidecarProvider
+        orgid: 1
+        type: file
+      resource: both
+      sizeLimit: {}
+      watchMethod: WATCH
+    datasources:
+      enabled: true
+      env: {}
+      initDatasources: false
+      label: ""
+      labelValue: ""
+      maxLines: 1000
+      reloadURL: http://localhost:3000/api/admin/provisioning/datasources/reload
+      resource: both
+      sizeLimit: {}
+      skipReload: false
+      watchMethod: WATCH
+    enableUniqueFilenames: false
+    image:
+      repository: quay.io/kiwigrid/k8s-sidecar
+      sha: ""
+      tag: 1.19.2
+    imagePullPolicy: IfNotPresent
+    livenessProbe: {}
+    notifiers:
+      enabled: false
+      env: {}
+      initNotifiers: false
+      label: grafana_notifier
+      labelValue: ""
+      reloadURL: http://localhost:3000/api/admin/provisioning/notifications/reload
+      resource: both
+      sizeLimit: {}
+      skipReload: false
+      watchMethod: WATCH
+    plugins:
+      enabled: false
+      env: {}
+      initPlugins: false
+      label: grafana_plugin
+      labelValue: ""
+      reloadURL: http://localhost:3000/api/admin/provisioning/plugins/reload
+      resource: both
+      sizeLimit: {}
+      skipReload: false
+      watchMethod: WATCH
+    readinessProbe: {}
+    resources: {}
+    securityContext: {}
+  smtp:
+    existingSecret: ""
+    passwordKey: password
+    userKey: user
+  testFramework:
+    enabled: true
+    image: bats/bats
+    imagePullPolicy: IfNotPresent
+    securityContext: {}
+    tag: v1.4.1
+  tolerations: []
+  topologySpreadConstraints: []
+  useStatefulSet: false
+logstash:
+  enabled: false
+  filters:
+    main: |-
+      filter {
+        if [kubernetes] {
+          mutate {
+            add_field => {
+              "container_name" => "%{[kubernetes][container][name]}"
+              "namespace" => "%{[kubernetes][namespace]}"
+              "pod" => "%{[kubernetes][pod][name]}"
+            }
+            replace => { "host" => "%{[kubernetes][node][name]}"}
+          }
+        }
+        mutate {
+          remove_field => ["tags"]
+        }
+      }
+  image: grafana/logstash-output-loki
+  imageTag: 1.0.1
+  outputs:
+    main: |-
+      output {
+        loki {
+          url => "http://loki:3100/loki/api/v1/push"
+          #username => "test"
+          #password => "test"
+        }
+        # stdout { codec => rubydebug }
+      }
+loki:
+  affinity: {}
+  alerting_groups: []
+  annotations: {}
+  client: {}
+  config:
+    auth_enabled: false
+    chunk_store_config:
+      max_look_back_period: 0s
+    compactor:
+      shared_store: filesystem
+      working_directory: /data/loki/boltdb-shipper-compactor
+    ingester:
+      chunk_block_size: 262144
+      chunk_idle_period: 3m
+      chunk_retain_period: 1m
+      lifecycler:
+        ring:
+          replication_factor: 1
+      max_transfer_retries: 0
+      wal:
+        dir: /data/loki/wal
+    limits_config:
+      enforce_metric_name: false
+      max_entries_limit_per_query: 5000
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+    memberlist:
+      join_members:
+        - '{{ include "loki.fullname" . }}-memberlist'
+    schema_config:
+      configs:
+        - from: "2020-10-24"
+          index:
+            period: 24h
+            prefix: index_
+          object_store: filesystem
+          schema: v11
+          store: boltdb-shipper
+    server:
+      grpc_listen_port: 9095
+      http_listen_port: 3100
+    storage_config:
+      boltdb_shipper:
+        active_index_directory: /data/loki/boltdb-shipper-active
+        cache_location: /data/loki/boltdb-shipper-cache
+        cache_ttl: 24h
+        shared_store: filesystem
+      filesystem:
+        directory: /data/loki/chunks
+    table_manager:
+      retention_deletes_enabled: false
+      retention_period: 0s
+  containerSecurityContext:
+    readOnlyRootFilesystem: true
+  datasource:
+    jsonData: '{}'
+    uid: ""
+  enabled: true
+  env: []
+  extraArgs: {}
+  extraContainers: []
+  extraEnvFrom: []
+  extraPorts: []
+  extraVolumeMounts: []
+  extraVolumes: []
+  global: {}
+  image:
+    pullPolicy: IfNotPresent
+    repository: grafana/loki
+    tag: 2.6.1
+  ingress:
+    annotations: {}
+    enabled: false
+    hosts:
+      - host: chart-example.local
+        paths: []
+    tls: []
+  initContainers: []
+  isDefault: true
+  livenessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+    initialDelaySeconds: 45
+  networkPolicy:
+    enabled: false
+  # 관리형 서비스 이므로 관리형 노드 그룹에 할당
+  nodeSelector:
+    alpha.eksctl.io/nodegroup-name: manage-group
+  persistence:
+    accessModes:
+      - ReadWriteOnce
+    annotations: {}
+    enabled: true
+    existingClaim: grafana-pvc
+    labels: {}
+    size: 10Gi
+  podAnnotations:
+    prometheus.io/port: http-metrics
+    prometheus.io/scrape: "true"
+  podDisruptionBudget: {}
+  podLabels: {}
+  podManagementPolicy: OrderedReady
+  rbac:
+    create: true
+    pspEnabled: true
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+    initialDelaySeconds: 45
+  replicas: 1
+  resources: {}
+  securityContext:
+    fsGroup: 10001
+    runAsGroup: 10001
+    runAsNonRoot: true
+    runAsUser: 10001
+  service:
+    annotations: {}
+    labels: {}
+    port: 3100
+    targetPort: http-metrics
+    type: ClusterIP
+  serviceAccount:
+    annotations: {}
+    automountServiceAccountToken: true
+    create: true
+  serviceMonitor:
+    additionalLabels: {}
+    annotations: {}
+    enabled: false
+    interval: ""
+    prometheusRule:
+      additionalLabels: {}
+      enabled: false
+      rules: []
+    tlsConfig: {}
+  terminationGracePeriodSeconds: 4800
+  tolerations: []
+  topologySpreadConstraints:
+    enabled: false
+  tracing: {}
+  updateStrategy:
+    type: RollingUpdate
+  url: http://{{(include "loki.serviceName" .)}}:{{ .Values.loki.service.port }}
+  useExistingAlertingGroup:
+    configmapName: ""
+    enabled: false
+prometheus:
+  datasource:
+    jsonData: '{}'
+  enabled: false
+  isDefault: false
+  url: http://{{ include "prometheus.fullname" .}}:{{ .Values.prometheus.server.service.servicePort
+    }}{{ .Values.prometheus.server.prefixURL }}
+promtail:
+  affinity: {}
+  annotations: {}
+  config:
+    clients:
+      - url: http://{{ .Release.Name }}:3100/loki/api/v1/push
+    enableTracing: false
+    enabled: true
+    file: |
+      server:
+        log_level: {{ .Values.config.logLevel }}
+        log_format: {{ .Values.config.logFormat }}
+        http_listen_port: {{ .Values.config.serverPort }}
+        {{- with .Values.httpPathPrefix }}
+        http_path_prefix: {{ . }}
+        {{- end }}
+        {{- tpl .Values.config.snippets.extraServerConfigs . | nindent 2 }}
+
+      clients:
+        {{- tpl (toYaml .Values.config.clients) . | nindent 2 }}
+
+      positions:
+        {{- tpl (toYaml .Values.config.positions) . | nindent 2 }}
+
+      scrape_configs:
+        {{- tpl .Values.config.snippets.scrapeConfigs . | nindent 2 }}
+        {{- tpl .Values.config.snippets.extraScrapeConfigs . | nindent 2 }}
+
+      limits_config:
+        {{- tpl .Values.config.snippets.extraLimitsConfig . | nindent 2 }}
+
+      tracing:
+        enabled: {{ .Values.config.enableTracing }}
+    logFormat: logfmt
+    logLevel: info
+    positions:
+      filename: /run/promtail/positions.yaml
+    serverPort: 3101
+    snippets:
+      addScrapeJobLabel: false
+      common:
+        - action: replace
+          source_labels:
+            - __meta_kubernetes_pod_node_name
+          target_label: node_name
+        - action: replace
+          source_labels:
+            - __meta_kubernetes_namespace
+          target_label: namespace
+        - action: replace
+          replacement: $1
+          separator: /
+          source_labels:
+            - namespace
+            - app
+          target_label: job
+        - action: replace
+          source_labels:
+            - __meta_kubernetes_pod_name
+          target_label: pod
+        - action: replace
+          source_labels:
+            - __meta_kubernetes_pod_container_name
+          target_label: container
+        - action: replace
+          replacement: /var/log/pods/*$1/*.log
+          separator: /
+          source_labels:
+            - __meta_kubernetes_pod_uid
+            - __meta_kubernetes_pod_container_name
+          target_label: __path__
+        - action: replace
+          regex: true/(.*)
+          replacement: /var/log/pods/*$1/*.log
+          separator: /
+          source_labels:
+            - __meta_kubernetes_pod_annotationpresent_kubernetes_io_config_hash
+            - __meta_kubernetes_pod_annotation_kubernetes_io_config_hash
+            - __meta_kubernetes_pod_container_name
+          target_label: __path__
+      extraLimitsConfig: ""
+      extraRelabelConfigs: []
+      extraScrapeConfigs: ""
+      extraServerConfigs: ""
+      pipelineStages:
+        - cri: {}
+      scrapeConfigs: |
+        # See also https://github.com/grafana/loki/blob/master/production/ksonnet/promtail/scrape_config.libsonnet for reference
+        - job_name: kubernetes-pods
+          pipeline_stages:
+            {{- toYaml .Values.config.snippets.pipelineStages | nindent 4 }}
+          kubernetes_sd_configs:
+            - role: pod
+          relabel_configs:
+            - source_labels:
+                - __meta_kubernetes_pod_controller_name
+              regex: ([0-9a-z-.]+?)(-[0-9a-f]{8,10})?
+              action: replace
+              target_label: __tmp_controller_name
+            - source_labels:
+                - __meta_kubernetes_pod_label_app_kubernetes_io_name
+                - __meta_kubernetes_pod_label_app
+                - __tmp_controller_name
+                - __meta_kubernetes_pod_name
+              regex: ^;*([^;]+)(;.*)?$
+              action: replace
+              target_label: app
+            - source_labels:
+                - __meta_kubernetes_pod_label_app_kubernetes_io_instance
+                - __meta_kubernetes_pod_label_instance
+              regex: ^;*([^;]+)(;.*)?$
+              action: replace
+              target_label: instance
+            - source_labels:
+                - __meta_kubernetes_pod_label_app_kubernetes_io_component
+                - __meta_kubernetes_pod_label_component
+              regex: ^;*([^;]+)(;.*)?$
+              action: replace
+              target_label: component
+            {{- if .Values.config.snippets.addScrapeJobLabel }}
+            - replacement: kubernetes-pods
+              target_label: scrape_job
+            {{- end }}
+            {{- toYaml .Values.config.snippets.common | nindent 4 }}
+            {{- with .Values.config.snippets.extraRelabelConfigs }}
+            {{- toYaml . | nindent 4 }}
+            {{- end }}
+  configmap:
+    enabled: false
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+  daemonset:
+    autoscaling:
+      controlledResources: []
+      enabled: false
+      maxAllowed: {}
+      minAllowed: {}
+    enabled: true
+  defaultVolumeMounts:
+    - mountPath: /run/promtail
+      name: run
+    - mountPath: /var/lib/docker/containers
+      name: containers
+      readOnly: true
+    - mountPath: /var/log/pods
+      name: pods
+      readOnly: true
+  defaultVolumes:
+    - hostPath:
+        path: /run/promtail
+      name: run
+    - hostPath:
+        path: /var/lib/docker/containers
+      name: containers
+    - hostPath:
+        path: /var/log/pods
+      name: pods
+  deployment:
+    autoscaling:
+      enabled: false
+      maxReplicas: 10
+      minReplicas: 1
+      strategy:
+        type: RollingUpdate
+      targetCPUUtilizationPercentage: 80
+    enabled: false
+    replicaCount: 1
+  enableServiceLinks: true
+  enabled: true
+  extraArgs: []
+  extraContainers: {}
+  extraEnv: []
+  extraEnvFrom: []
+  extraObjects: []
+  extraPorts: {}
+  extraVolumeMounts: []
+  extraVolumes: []
+  global:
+    imagePullSecrets: []
+    imageRegistry: ""
+  hostAliases: []
+  httpPathPrefix: ""
+  image:
+    pullPolicy: IfNotPresent
+    registry: docker.io
+    repository: grafana/promtail
+  imagePullSecrets: []
+  initContainer: []
+  livenessProbe: {}
+  networkPolicy:
+    enabled: false
+    k8sApi:
+      cidrs: []
+      port: 8443
+    metrics:
+      cidrs: []
+      namespaceSelector: {}
+      podSelector: {}
+  # promtail은 노드에서 로그를 수집하는 역할을 하며,
+  # 모든 노드의 로그를 수집해야 하므로 nodeSelector를 지정하지 않음.
+  nodeSelector: {}
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext:
+    runAsGroup: 0
+    runAsUser: 0
+  podSecurityPolicy:
+    allowPrivilegeEscalation: true
+    fsGroup:
+      rule: RunAsAny
+    hostIPC: false
+    hostNetwork: false
+    hostPID: false
+    privileged: true
+    readOnlyRootFilesystem: true
+    requiredDropCapabilities:
+      - ALL
+    runAsUser:
+      rule: RunAsAny
+    seLinux:
+      rule: RunAsAny
+    supplementalGroups:
+      rule: RunAsAny
+    volumes:
+      - secret
+      - hostPath
+      - downwardAPI
+  rbac:
+    create: true
+    pspEnabled: false
+  readinessProbe:
+    failureThreshold: 5
+    httpGet:
+      path: '{{ printf `%s/ready` .Values.httpPathPrefix }}'
+      port: http-metrics
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 1
+  resources: {}
+  secret:
+    annotations: {}
+    labels: {}
+  serviceAccount:
+    annotations: {}
+    create: true
+    imagePullSecrets: []
+  serviceMonitor:
+    annotations: {}
+    enabled: false
+    labels: {}
+    metricRelabelings: []
+    namespaceSelector: {}
+    prometheusRule:
+      additionalLabels: {}
+      enabled: false
+      rules: []
+    relabelings: []
+    scheme: http
+    targetLabels: []
+  sidecar:
+    configReloader:
+      config:
+        serverPort: 9533
+      containerSecurityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        readOnlyRootFilesystem: true
+      enabled: false
+      extraArgs: []
+      extraEnv: []
+      extraEnvFrom: []
+      image:
+        pullPolicy: IfNotPresent
+        registry: docker.io
+        repository: jimmidyson/configmap-reload
+        tag: v0.8.0
+      livenessProbe: {}
+      readinessProbe: {}
+      resources: {}
+      serviceMonitor:
+        enabled: true
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      operator: Exists
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+      operator: Exists
+  updateStrategy: {}
+proxy:
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""
+test_pod:
+  enabled: true
+  image: bats/bats:1.8.2
+  pullPolicy: IfNotPresent

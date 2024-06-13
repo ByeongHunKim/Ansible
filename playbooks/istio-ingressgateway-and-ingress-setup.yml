@@ -3,10 +3,10 @@
   hosts: bastion_host
   become: no
   vars_files:
-    - ../vars.yml  # 프로젝트 루트 디렉토리에서 vars.yml 파일을 참조
+    - ../vars.yml
   tasks:
     - name: Install Istio Ingress Gateway
-      shell: helm install istio-ingressgateway istio/gateway -n istio-system --set service.type=NodePort
+      shell: helm install istio-ingressgateway istio/gateway -n istio-system --set service.type=NodePort --wait
       register: helm_ingress_install_output
 
     - name: Debug Istio Ingress Gateway install output
@@ -15,7 +15,7 @@
 
     - name: Apply Istio Ingress Configuration
       template:
-        src: templates/istio-ingress.yaml
+        src: templates/istio/istio-ingress.yaml
         dest: /tmp/istio-ingress.yaml
 
     - name: Apply the Ingress configuration
