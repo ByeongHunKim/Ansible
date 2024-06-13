@@ -13,7 +13,7 @@ alertmanager:
     global:
       resolve_timeout: 5m
 grafana:
-  adminPassword: memecore123
+  adminPassword: password123
   enabled: true
   ingress:
     annotations:

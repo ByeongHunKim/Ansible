@@ -22,7 +22,7 @@ grafana:
     existingSecret: ""
     passwordKey: admin-password
     # 초기 비밀번호 할당
-    password: memecore123
+    password: password123
     userKey: admin-user
   adminUser: admin
   affinity: {}
